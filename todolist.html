@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard To-Do List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .todo-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .stats-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .add-task-form {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .category-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .category-btn.active {
+            background: #ff6b6b;
+            color: white;
+            border-color: #ff6b6b;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .task-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .task-item.completed {
+            opacity: 0.7;
+            text-decoration: line-through;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .task-actions button:hover {
+            background: #f8f9fa;
+        }
+
+        .task-category {
+            display: inline-block;
+            background: #e9ecef;
+            color: #666;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .task-description {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .task-image {
+            width: 100%;
+            max-width: 200px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .stats-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .progress-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(#ff6b6b 0deg, #e9ecef 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .progress-circle::before {
+            content: '';
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: white;
+            position: absolute;
+        }
+
+        .progress-text {
+            position: relative;
+            z-index: 1;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stats-list {
+            list-style: none;
+        }
+
+        .stats-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .stats-list li:last-child {
+            border-bottom: none;
+        }
+
+        .category-colors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .category-color {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .work { background: #3498db; }
+        .personal { background: #e74c3c; }
+        .shopping { background: #f39c12; }
+        .health { background: #2ecc71; }
+        .other { background: #9b59b6; }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .category-filter {
+                justify-content: center;
+            }
+            
+            .task-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .task-actions {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Dashboard To-Do List</h1>
+            <p>Kelola tugas Anda dengan mudah dan efisien</p>
+        </div>
+
+        <div class="main-content">
+            <div class="todo-section">
+                <div class="add-task-form">
+                    <h3>➕ Tambah Tugas Baru</h3>
+                    <form id="taskForm">
+                        <div class="form-group">
+                            <label for="taskTitle">Judul Tugas:</label>
+                            <input type="text" id="taskTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDescription">Deskripsi:</label>
+                            <textarea id="taskDescription" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskCategory">Kategori:</label>
+                            <select id="taskCategory">
+                                <option value="work">Pekerjaan</option>
+                                <option value="personal">Pribadi</option>
+                                <option value="shopping">Belanja</option>
+                                <option value="health">Kesehatan</option>
+                                <option value="other">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskImage">Gambar (opsional):</label>
+                            <input type="file" id="taskImage" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn">Tambah Tugas</button>
+                    </form>
+                </div>
+
+                <div class="category-filter">
+                    <button class="category-btn active" data-category="all">Semua</button>
+                    <button class="category-btn" data-category="work">Pekerjaan</button>
+                    <button class="category-btn" data-category="personal">Pribadi</button>
+                    <button class="category-btn" data-category="shopping">Belanja</button>
+                    <button class="category-btn" data-category="health">Kesehatan</button>
+                    <button class="category-btn" data-category="other">Lainnya</button>
+                </div>
+
+                <div class="task-list" id="taskList">
+                    <!-- Tasks will be rendered here -->
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <h3 class="stats-title">📊 Statistik Tugas</h3>
+                <div class="progress-circle" id="progressCircle">
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+                <ul class="stats-list">
+                    <li>
+                        <span>Total Tugas:</span>
+                        <span id="totalTasks">0</span>
+                    </li>
+                    <li>
+                        <span>Selesai:</span>
+                        <span id="completedTasks">0</span>
+                    </li>
+                    <li>
+                        <span>Belum Selesai:</span>
+                        <span id="pendingTasks">0</span>
+                    </li>
+                </ul>
+
+                <div class="category-colors">
+                    <div class="category-color work">Kerja</div>
+                    <div class="category-color personal">Pribadi</div>
+                    <div class="category-color shopping">Belanja</div>
+                    <div class="category-color health">Sehat</div>
+                    <div class="category-color other">Lainnya</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TodoApp {
+            constructor() {
+                this.tasks = [];
+                this.currentFilter = 'all';
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.render();
+            }
+
+            bindEvents() {
+                document.getElementById('taskForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addTask();
+                });
+
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.filterTasks(e.target.dataset.category);
+                    });
+                });
+            }
+
+            addTask() {
+                const title = document.getElementById('taskTitle').value;
+                const description = document.getElementById('taskDescription').value;
+                const category = document.getElementById('taskCategory').value;
+                const imageFile = document.getElementById('taskImage').files[0];
+
+                if (!title.trim()) return;
+
+                const task = {
+                    id: Date.now(),
+                    title: title.trim(),
+                    description: description.trim(),
+                    category,
+                    completed: false,
+                    createdAt: new Date().toISOString(),
+                    image: null
+                };
+
+                if (imageFile) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        task.image = e.target.result;
+                        this.tasks.push(task);
+                        this.render();
+                    };
+                    reader.readAsDataURL(imageFile);
+                } else {
+                    this.tasks.push(task);
+                    this.render();
+                }
+
+                document.getElementById('taskForm').reset();
+            }
+
+            toggleTask(id) {
+                const task = this.tasks.find(t => t.id === id);
+                if (task) {
+                    task.completed = !task.completed;
+                    this.render();
+                }
+            }
+
+            deleteTask(id) {
+                if (confirm('Apakah Anda yakin ingin menghapus tugas ini?')) {
+                    this.tasks = this.tasks.filter(t => t.id !== id);
+                    this.render();
+                }
+            }
+
+            filterTasks(category) {
+                this.currentFilter = category;
+                
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-category="${category}"]`).classList.add('active');
+                
+                this.render();
+            }
+
+            getFilteredTasks() {
+                if (this.currentFilter === 'all') {
+                    return this.tasks;
+                }
+                return this.tasks.filter(task => task.category === this.currentFilter);
+            }
+
+            getCategoryName(category) {
+                const categories = {
+                    work: 'Pekerjaan',
+                    personal: 'Pribadi',
+                    shopping: 'Belanja',
+                    health: 'Kesehatan',
+                    other: 'Lainnya'
+                };
+                return categories[category] || category;
+            }
+
+            renderTasks() {
+                const taskList = document.getElementById('taskList');
+                const filteredTasks = this.getFilteredTasks();
+
+                if (filteredTasks.length === 0) {
+                    taskList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <h3>Belum ada tugas</h3>
+                            <p>Tambahkan tugas pertama Anda!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                taskList.innerHTML = filteredTasks.map(task => `
+                    <div class="task-item ${task.completed ? 'completed' : ''}">
+                        <div class="task-header">
+                            <div>
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-category ${task.category}">${this.getCategoryName(task.category)}</div>
+                            </div>
+                            <div class="task-actions">
+                                <button onclick="app.toggleTask(${task.id})" title="${task.completed ? 'Tandai belum selesai' : 'Tandai selesai'}">
+                                    ${task.completed ? '↩️' : '✅'}
+                                </button>
+                                <button onclick="app.deleteTask(${task.id})" title="Hapus tugas">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                        ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+                        ${task.image ? `<img src="${task.image}" alt="Task image" class="task-image">` : ''}
+                    </div>
+                `).join('');
+            }
+
+            renderStats() {
+                const total = this.tasks.length;
+                const completed = this.tasks.filter(t => t.completed).length;
+                const pending = total - completed;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                document.getElementById('totalTasks').textContent = total;
+                document.getElementById('completedTasks').textContent = completed;
+                document.getElementById('pendingTasks').textContent = pending;
+                document.getElementById('progressText').textContent = `${percentage}%`;
+
+                const progressCircle = document.getElementById('progressCircle');
+                progressCircle.style.background = `conic-gradient(#ff6b6b ${percentage * 3.6}deg, #e9ecef 0deg)`;
+            }
+
+            render() {
+                this.renderTasks();
+                this.renderStats();
+            }
+        }
+
+        const app = new TodoApp();
+    </script>
+</body>
+</html>
